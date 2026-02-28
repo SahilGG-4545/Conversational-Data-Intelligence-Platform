@@ -1,0 +1,555 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataMind — Conversational Data Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Noise overlay -->
+<div class="noise-overlay"></div>
+
+<!-- Page loader -->
+<div class="page-loader" id="pageLoader">
+    <div class="loader-logo">
+        <span class="loader-icon">◈</span>
+        <span class="loader-text">DataMind</span>
+    </div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<header class="navbar" id="navbar">
+    <div class="navbar-left">
+        <div class="brand">
+            <span class="brand-glyph">◈</span>
+            <span class="brand-name">DataMind</span>
+            <span class="brand-tag">Intelligence Platform</span>
+        </div>
+    </div>
+
+    <nav class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="data" role="tab" aria-selected="true">
+            <span class="tab-icon">⬡</span> Data
+        </button>
+        <button class="tab-btn" data-tab="query" role="tab" aria-selected="false">
+            <span class="tab-icon">◎</span> Query
+        </button>
+        <button class="tab-btn" data-tab="analysis" role="tab" aria-selected="false">
+            <span class="tab-icon">⬖</span> Analysis
+        </button>
+        <button class="tab-btn" data-tab="visual" role="tab" aria-selected="false">
+            <span class="tab-icon">◫</span> Visual
+        </button>
+    </nav>
+
+    <div class="navbar-right">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-label" id="statusLabel">Ready</span>
+    </div>
+</header>
+
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="app-shell">
+
+    <!-- SIDEBAR (always visible) -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-inner">
+
+            <!-- Upload Block -->
+            <div class="sidebar-block reveal-left">
+                <div class="block-label">
+                    <span class="block-label-line"></span>
+                    <span>DATA SOURCE</span>
+                    <span class="block-label-line"></span>
+                </div>
+                <div class="upload-zone" id="uploadZone">
+                    <div class="upload-icon-wrap">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                    </div>
+                    <p class="upload-hint">Drop CSV here or click to browse</p>
+                    <label for="csvFile" class="upload-cta">Choose File</label>
+                    <input type="file" id="csvFile" accept=".csv" class="file-input-hidden">
+                    <span id="fileName" class="file-name-display">No file chosen</span>
+                </div>
+                <div class="upload-actions">
+                    <button id="uploadBtn" class="btn btn-primary btn-full">
+                        <span class="btn-text">Upload</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    <button id="previewBtn" class="btn btn-outline btn-full" disabled>
+                        Preview Data
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Passport -->
+            <div class="sidebar-block reveal-left delay-1">
+                <div class="block-label">
+                    <span class="block-label-line"></span>
+                    <span>DATA PASSPORT</span>
+                    <span class="block-label-line"></span>
+                </div>
+                <div id="dataPassportContent" class="passport-content">
+                    <div class="passport-empty">
+                        <div class="passport-empty-icon">◫</div>
+                        <p>Upload a CSV file to view data intelligence</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- CONTENT PANELS -->
+    <main class="content" id="mainContent">
+
+        <!-- ── TAB: DATA (landing/welcome) ── -->
+        <div class="tab-panel active" id="tab-data">
+            <div class="panel-hero reveal-up">
+                <div class="hero-kicker">AI-Powered</div>
+                <h1 class="hero-title">Turn Data into<br><span class="hero-accent">Intelligence</span></h1>
+                <p class="hero-sub">Upload a CSV, ask natural language questions, and get instant insights backed by AI-generated code and transparent metadata.</p>
+                <div class="hero-steps">
+                    <div class="step-item">
+                        <div class="step-num">01</div>
+                        <div class="step-text">Upload your CSV dataset</div>
+                    </div>
+                    <div class="step-divider">—</div>
+                    <div class="step-item">
+                        <div class="step-num">02</div>
+                        <div class="step-text">Ask in plain English</div>
+                    </div>
+                    <div class="step-divider">—</div>
+                    <div class="step-item">
+                        <div class="step-num">03</div>
+                        <div class="step-text">Get instant answers + charts</div>
+                    </div>
+                </div>
+            </div>
+            <div class="feature-grid">
+                <div class="feature-card reveal-up delay-1">
+                    <div class="feature-icon">◎</div>
+                    <h3>Natural Language Query</h3>
+                    <p>Ask complex data questions in plain English — no SQL or Python required.</p>
+                </div>
+                <div class="feature-card reveal-up delay-2">
+                    <div class="feature-icon">⬖</div>
+                    <h3>Transparent Analysis</h3>
+                    <p>Every answer shows confidence scores, execution metadata, and generated code.</p>
+                </div>
+                <div class="feature-card reveal-up delay-3">
+                    <div class="feature-icon">◫</div>
+                    <h3>Smart Visualization</h3>
+                    <p>Automatic chart generation with 6+ chart types and smart defaults.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TAB: QUERY ── -->
+        <div class="tab-panel" id="tab-query">
+            <div class="panel-scroll">
+
+                <!-- Question Input -->
+                <section class="query-section reveal-up">
+                    <div class="section-label">ASK YOUR DATA</div>
+                    <div class="query-box">
+                        <input
+                            type="text"
+                            id="questionInput"
+                            class="query-input"
+                            placeholder="e.g. Show me total sales by region for Q3..."
+                            autocomplete="off"
+                        >
+                        <button id="askBtn" class="btn btn-primary btn-ask">
+                            <span class="btn-text">Ask</span>
+                            <span class="btn-arrow">→</span>
+                        </button>
+                    </div>
+                    <div class="query-hints">
+                        <span class="hint-label">Try:</span>
+                        <span class="hint-chip" onclick="setHint(this)">Top 5 categories by value</span>
+                        <span class="hint-chip" onclick="setHint(this)">Monthly trends over time</span>
+                        <span class="hint-chip" onclick="setHint(this)">Average by group</span>
+                    </div>
+                </section>
+
+                <!-- Answer Card -->
+                <article class="result-card reveal-up delay-1" id="answerCard">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <span class="card-tag">ANSWER</span>
+                            <h3 class="card-title">Natural Language Response</h3>
+                        </div>
+                        <div class="card-badge answer-badge">AI</div>
+                    </div>
+                    <div id="answerContent" class="card-body">
+                        <p class="placeholder-text">Your answer will appear here after asking a question.</p>
+                    </div>
+                </article>
+
+                <!-- Explanation Card -->
+                <article class="result-card reveal-up delay-2" id="explanationCard">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <span class="card-tag">EXPLANATION</span>
+                            <h3 class="card-title">Methodology & Reasoning</h3>
+                        </div>
+                        <div class="card-badge explain-badge">WHY</div>
+                    </div>
+                    <div id="explanationContent" class="card-body">
+                        <p class="placeholder-text">A detailed explanation of the analysis methodology will appear here.</p>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+        <!-- ── TAB: ANALYSIS ── -->
+        <div class="tab-panel" id="tab-analysis">
+            <div class="panel-scroll">
+
+                <!-- Generated Code Card -->
+                <article class="result-card code-card reveal-up" id="codeCard">
+                    <div class="card-header collapsible-header" id="codeHeader">
+                        <div class="card-header-left">
+                            <span class="card-tag">CODE</span>
+                            <h3 class="card-title">Generated Python</h3>
+                        </div>
+                        <div class="card-header-right">
+                            <span class="collapse-icon toggle-icon">▼</span>
+                        </div>
+                    </div>
+                    <div id="codeContent" class="card-body code-body">
+                        <pre class="code-pre"><code id="generatedCode" class="code-block">// Code will be generated when you ask a question</code></pre>
+                    </div>
+                </article>
+
+                <!-- Transparency Card -->
+                <article class="result-card transparency-card reveal-up delay-1" id="transparencyCard" style="display: none;">
+                    <div class="card-header collapsible-header" id="transparencyHeader">
+                        <div class="card-header-left">
+                            <span class="card-tag">METADATA</span>
+                            <h3 class="card-title">Confidence &amp; Transparency</h3>
+                        </div>
+                        <div class="card-header-right">
+                            <span class="collapse-icon toggle-icon">▼</span>
+                        </div>
+                    </div>
+                    <div id="transparencyContent" class="card-body transparency-body">
+                        <div class="transparency-box">
+                            <div class="transparency-row">
+                                <div class="transparency-item">
+                                    <span class="t-icon">◉</span>
+                                    <span class="t-label">Data Source</span>
+                                    <span class="t-value" id="dataSource">—</span>
+                                </div>
+                                <div class="transparency-item">
+                                    <span class="t-icon">≡</span>
+                                    <span class="t-label">Dataset Rows</span>
+                                    <span class="t-value" id="totalRows">—</span>
+                                </div>
+                            </div>
+                            <div class="transparency-row">
+                                <div class="transparency-item">
+                                    <span class="t-icon">⊞</span>
+                                    <span class="t-label">Columns Used</span>
+                                    <span class="t-value" id="columnsUsed">—</span>
+                                </div>
+                                <div class="transparency-item">
+                                    <span class="t-icon">⊟</span>
+                                    <span class="t-label">Rows Processed</span>
+                                    <span class="t-value" id="rowsProcessed">—</span>
+                                </div>
+                            </div>
+                            <div class="transparency-row">
+                                <div class="transparency-item">
+                                    <span class="t-icon">◈</span>
+                                    <span class="t-label">Analysis Type</span>
+                                    <span class="t-value" id="analysisType">—</span>
+                                </div>
+                                <div class="transparency-item">
+                                    <span class="t-icon">⚡</span>
+                                    <span class="t-label">Complexity</span>
+                                    <span class="t-value" id="complexity">—</span>
+                                </div>
+                            </div>
+                            <div class="transparency-row">
+                                <div class="transparency-item">
+                                    <span class="t-icon">◯</span>
+                                    <span class="t-label">External Data</span>
+                                    <span class="t-value" id="externalData">—</span>
+                                </div>
+                                <div class="transparency-item">
+                                    <span class="t-icon">⏱</span>
+                                    <span class="t-label">Execution Time</span>
+                                    <span class="t-value" id="executionTime">—</span>
+                                </div>
+                            </div>
+                            <!-- Confidence Score -->
+                            <div class="confidence-row">
+                                <div class="confidence-label-row">
+                                    <span class="t-label">Confidence Score</span>
+                                    <span class="confidence-value" id="confidenceScore">—</span>
+                                </div>
+                                <div class="confidence-track">
+                                    <div class="confidence-fill" id="confidenceFill"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+
+        <!-- ── TAB: VISUALIZATION ── -->
+        <div class="tab-panel" id="tab-visual">
+            <div class="panel-scroll">
+
+                <article class="result-card chart-outer reveal-up" id="chartCard" style="display: none;">
+                    <div class="chart-header card-header">
+                        <div class="card-header-left">
+                            <span class="card-tag">CHART</span>
+                            <h3 class="card-title">Data Visualization</h3>
+                        </div>
+                        <div class="chart-controls">
+                            <label for="chartTypeSelector" class="chart-type-label">Type:</label>
+                            <select id="chartTypeSelector" class="chart-type-select">
+                                <option value="bar">Bar</option>
+                                <option value="line">Line</option>
+                                <option value="pie">Pie</option>
+                                <option value="doughnut">Doughnut</option>
+                                <option value="horizontalBar">Horizontal Bar</option>
+                                <option value="area">Area</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="chartContainer" class="chart-container">
+                        <canvas id="dataChart"></canvas>
+                    </div>
+                </article>
+
+                <!-- Empty state for visualization tab -->
+                <div class="viz-empty reveal-up" id="vizEmpty">
+                    <div class="viz-empty-icon">◫</div>
+                    <h3>No Visualization Yet</h3>
+                    <p>Ask a question that produces chart data — the visualization will appear here.</p>
+                    <button class="btn btn-outline" onclick="switchTab('query')">Go to Query →</button>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<!-- ===== CSV PREVIEW MODAL ===== -->
+<div id="previewModal" class="modal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <div class="modal-title-block">
+                <span class="modal-tag">PREVIEW</span>
+                <h3 class="modal-title">First 10 Rows</h3>
+            </div>
+            <button class="modal-close" id="modalClose" aria-label="Close">
+                <span>✕</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="table-scroll-wrap">
+                <table id="previewTable" class="preview-table">
+                    <thead id="previewTableHead"></thead>
+                    <tbody id="previewTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== INLINE TAB + UTILITY SCRIPTS ===== -->
+<script>
+// ── Tab switching ──
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tabId);
+        b.setAttribute('aria-selected', b.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + tabId);
+    });
+    // Show/hide viz-empty based on chartCard
+    if (tabId === 'visual') {
+        const chartCard = document.getElementById('chartCard');
+        const vizEmpty  = document.getElementById('vizEmpty');
+        if (vizEmpty) vizEmpty.style.display = chartCard.style.display === 'block' ? 'none' : 'flex';
+    }
+}
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ── Hint chips ──
+function setHint(el) {
+    const qi = document.getElementById('questionInput');
+    if (qi) qi.value = el.textContent;
+    switchTab('query');
+    qi.focus();
+}
+
+// ── Page loader ──
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const loader = document.getElementById('pageLoader');
+        if (loader) {
+            loader.classList.add('fade-out');
+            setTimeout(() => loader.remove(), 600);
+        }
+        // Trigger reveal animations
+        observeReveal();
+    }, 800);
+});
+
+// ── Scroll reveal (Intersection Observer) ──
+function observeReveal() {
+    const items = document.querySelectorAll('.reveal-up, .reveal-left');
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('revealed'); io.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    items.forEach(el => io.observe(el));
+}
+
+// ── Navbar scroll shadow ──
+window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+}, { passive: true });
+
+// ── Upload zone drag-and-drop ──
+const uploadZone = document.getElementById('uploadZone');
+if (uploadZone) {
+    ['dragenter','dragover'].forEach(ev => uploadZone.addEventListener(ev, e => { e.preventDefault(); uploadZone.classList.add('drag-over'); }));
+    ['dragleave','drop'].forEach(ev => uploadZone.addEventListener(ev, e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); }));
+    uploadZone.addEventListener('drop', e => {
+        const f = e.dataTransfer.files[0];
+        if (f && f.name.endsWith('.csv')) {
+            const dt = new DataTransfer();
+            dt.items.add(f);
+            document.getElementById('csvFile').files = dt.files;
+            document.getElementById('csvFile').dispatchEvent(new Event('change'));
+        }
+    });
+}
+
+    observeReveal();
+</script>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<!-- Post-load: patch displayTransparency for confidence bar + add tab UX -->
+<script>
+(function() {
+    // Patch displayTransparency to animate confidence bar
+    const _origDT = window.displayTransparency;
+    if (typeof _origDT === 'function') {
+        window.displayTransparency = function(t) {
+            _origDT(t);
+            const fill = document.getElementById('confidenceFill');
+            if (fill) {
+                fill.style.width = '0%';
+                requestAnimationFrame(() => {
+                    fill.style.width = Math.min(100, Math.max(0, t.confidence_score)) + '%';
+                    fill.className = 'confidence-fill';
+                    if (t.confidence_score >= 85) fill.classList.add('conf-high');
+                    else if (t.confidence_score >= 60) fill.classList.add('conf-mid');
+                    else fill.classList.add('conf-low');
+                });
+            }
+            // Badge the Analysis tab
+            setBadge('analysis');
+        };
+    }
+
+    // Patch renderChart to badge the Visual tab
+    const _origRC = window.renderChart;
+    if (typeof _origRC === 'function') {
+        window.renderChart = function(data) {
+            _origRC(data);
+            // Hide viz-empty, show chart
+            const vizEmpty = document.getElementById('vizEmpty');
+            if (vizEmpty) vizEmpty.style.display = 'none';
+            // Badge the Visual tab
+            setBadge('visual');
+        };
+    }
+
+    // Patch clearChart to show viz-empty again
+    const _origCC = window.clearChart;
+    if (typeof _origCC === 'function') {
+        window.clearChart = function() {
+            _origCC();
+            const vizEmpty = document.getElementById('vizEmpty');
+            if (vizEmpty) vizEmpty.style.display = 'flex';
+            clearBadge('visual');
+        };
+    }
+
+    // Badge helpers — show a dot on a tab button after results arrive
+    function setBadge(tabId) {
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+        if (btn && !btn.querySelector('.tab-badge')) {
+            const b = document.createElement('span');
+            b.className = 'tab-badge';
+            btn.appendChild(b);
+        }
+    }
+    function clearBadge(tabId) {
+        const b = document.querySelector(`.tab-btn[data-tab="${tabId}"] .tab-badge`);
+        if (b) b.remove();
+    }
+
+    // Clear badges when tab is clicked
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => clearBadge(btn.dataset.tab));
+    });
+
+    // Update status dot on upload/ask
+    const _uploadBtn = document.getElementById('uploadBtn');
+    const _askBtn    = document.getElementById('askBtn');
+    const _dot       = document.getElementById('statusDot');
+    const _lbl       = document.getElementById('statusLabel');
+
+    function setStatus(state, label) {
+        if (!_dot || !_lbl) return;
+        _dot.className = 'status-dot ' + state;
+        _lbl.textContent = label;
+    }
+
+    if (_uploadBtn) {
+        const _origUpload = _uploadBtn.addEventListener; // won't work this way, use MutationObserver
+        const obs = new MutationObserver(() => {
+            if (_uploadBtn.disabled) setStatus('loading', 'Uploading...');
+            else setStatus('online', 'Ready');
+        });
+        obs.observe(_uploadBtn, { attributes: true, attributeFilter: ['disabled'] });
+    }
+    if (_askBtn) {
+        const obs2 = new MutationObserver(() => {
+            if (_askBtn.disabled) setStatus('loading', 'Processing...');
+            else setStatus('online', 'Ready');
+        });
+        obs2.observe(_askBtn, { attributes: true, attributeFilter: ['disabled'] });
+    }
+})();
+</script>
+</body>
+</html>
